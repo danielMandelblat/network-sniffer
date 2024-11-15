@@ -47,6 +47,8 @@ class Device:
         return f"{self.ip} [{self.mac}]"
 
     def scan_ports(self, as_thread = True, port_range=(1, 1024)):
+        threads = []
+
         def scan(port):
             try:
                 # Try to connect to the IP address on the port
@@ -63,9 +65,7 @@ class Device:
                 sock.close()
             except socket.error:
                 ...
-
-        threads = []
-
+        # Iterate over the desired ports
         for port in range(port_range[0], port_range[1] + 1):
             if as_thread:
                 t = Thread(target=scan, args=(port,))
@@ -173,8 +173,6 @@ class Interface:
 
 if __name__ == "__main__":
     get_interfaces = get_interfaces()
-
     for inet in get_interfaces:
         print(f"Scanning interface: {inet.ip_address_with_prefix}")
-
-        inet.scan_network()
+        devices = inet.scan_network(get_mac_address_vendor=True, scan_open_ports=True)
